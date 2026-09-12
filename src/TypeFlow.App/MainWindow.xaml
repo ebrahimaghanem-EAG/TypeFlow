@@ -42,26 +42,15 @@
         <!-- Add / edit form -->
         <Border Grid.Row="1" BorderBrush="#DDDDDD" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,8" Background="#FAFAFA">
             <StackPanel>
-                <TextBlock x:Name="FormTitle" Text="Add Shortcut" FontWeight="SemiBold" Margin="0,0,0,6"/>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+                <TextBlock x:Name="FormTitle" Text="Add Shortcut" FontWeight="SemiBold" Width="704"/>
                     <StackPanel Grid.Column="0" Margin="0,0,8,0">
                         <TextBlock Text="Shortcut (e.g., brb)"/>
-                        <TextBox x:Name="ShortcutBox" Padding="3" MaxLength="50"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                        <TextBox x:Name="ShortcutBox" Padding="3" MaxLength="50" Width="704"/>
                         <TextBlock Text="Expansion Text (max 5000 chars)"/>
-                        <TextBox x:Name="ExpansionBox" Padding="3" MaxLength="5000" Height="50" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="2" VerticalAlignment="Bottom">
-                        <Button x:Name="AddButton" Content="Add Shortcut" Padding="12,6" MinWidth="110" Click="AddButton_Click"/>
+                        <TextBox x:Name="ExpansionBox" Padding="3" MaxLength="5000" Height="106" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Width="710"/>
                         <Button x:Name="CancelEditButton" Content="Cancel" Padding="12,4" MinWidth="110" Margin="0,4,0,0" Visibility="Collapsed" Click="CancelEditButton_Click"/>
+                        <Button x:Name="AddButton" Content="Add Shortcut" Padding="12,6" MinWidth="110" Click="AddButton_Click"/>
                     </StackPanel>
-                </Grid>
                 <TextBlock x:Name="ValidationText" Foreground="#C00000" Margin="0,6,0,0" TextWrapping="Wrap"/>
             </StackPanel>
         </Border>
@@ -78,7 +67,7 @@
             </StackPanel>
             <Border Grid.Row="1" BorderBrush="#DDDDDD" BorderThickness="1" CornerRadius="4">
                 <ListBox x:Name="ShortcutList" BorderThickness="0"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled" Margin="0,62,0,0">
                     <ListBox.ItemContainerStyle>
                         <Style TargetType="ListBoxItem">
                             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
