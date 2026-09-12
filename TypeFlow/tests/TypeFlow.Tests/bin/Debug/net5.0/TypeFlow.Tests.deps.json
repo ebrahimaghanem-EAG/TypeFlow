@@ -1,0 +1,39 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v5.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v5.0": {
+      "TypeFlow.Tests/1.0.0": {
+        "dependencies": {
+          "TypeFlow.Core": "1.0.0"
+        },
+        "runtime": {
+          "TypeFlow.Tests.dll": {}
+        }
+      },
+      "TypeFlow.Core/1.0.0": {
+        "runtime": {
+          "TypeFlow.Core.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "TypeFlow.Tests/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "TypeFlow.Core/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

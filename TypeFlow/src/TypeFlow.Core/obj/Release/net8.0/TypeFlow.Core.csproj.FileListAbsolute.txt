@@ -1,0 +1,11 @@
+F:\fromC\Downloads\eag\shortcuts2nd\TypeFlow\src\TypeFlow.Core\bin\Release\net8.0\TypeFlow.Core.deps.json
+F:\fromC\Downloads\eag\shortcuts2nd\TypeFlow\src\TypeFlow.Core\bin\Release\net8.0\TypeFlow.Core.dll
+F:\fromC\Downloads\eag\shortcuts2nd\TypeFlow\src\TypeFlow.Core\bin\Release\net8.0\TypeFlow.Core.pdb
+F:\fromC\Downloads\eag\shortcuts2nd\TypeFlow\src\TypeFlow.Core\obj\Release\net8.0\TypeFlow.Core.GeneratedMSBuildEditorConfig.editorconfig
+F:\fromC\Downloads\eag\shortcuts2nd\TypeFlow\src\TypeFlow.Core\obj\Release\net8.0\TypeFlow.Core.AssemblyInfoInputs.cache
+F:\fromC\Downloads\eag\shortcuts2nd\TypeFlow\src\TypeFlow.Core\obj\Release\net8.0\TypeFlow.Core.AssemblyInfo.cs
+F:\fromC\Downloads\eag\shortcuts2nd\TypeFlow\src\TypeFlow.Core\obj\Release\net8.0\TypeFlow.Core.csproj.CoreCompileInputs.cache
+F:\fromC\Downloads\eag\shortcuts2nd\TypeFlow\src\TypeFlow.Core\obj\Release\net8.0\TypeFlow.Core.dll
+F:\fromC\Downloads\eag\shortcuts2nd\TypeFlow\src\TypeFlow.Core\obj\Release\net8.0\refint\TypeFlow.Core.dll
+F:\fromC\Downloads\eag\shortcuts2nd\TypeFlow\src\TypeFlow.Core\obj\Release\net8.0\TypeFlow.Core.pdb
+F:\fromC\Downloads\eag\shortcuts2nd\TypeFlow\src\TypeFlow.Core\obj\Release\net8.0\ref\TypeFlow.Core.dll
