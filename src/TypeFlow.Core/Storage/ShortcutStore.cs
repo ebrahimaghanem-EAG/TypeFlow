@@ -38,6 +38,8 @@ public sealed class ShortcutStore
                 if (loaded != null)
                 {
                     Shortcuts = new Dictionary<string, string>(loaded, StringComparer.Ordinal);
+                    // Clean up stale header row that was mistakenly saved as an entry.
+                    Shortcuts.Remove("shortcut");
                     return;
                 }
             }
@@ -72,6 +74,10 @@ public sealed class ShortcutStore
         var rows = CsvParser.Parse(csv);
         foreach (var row in rows)
         {
+            // Safety: skip any row that is literally the CSV header row.
+            if (string.Equals(row.Shortcut, "shortcut", StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(row.Expansion, "expansion", StringComparison.OrdinalIgnoreCase))
+                continue;
             Shortcuts[row.Shortcut] = row.Expansion;
         }
     }
@@ -103,6 +109,9 @@ public sealed class ShortcutStore
         var rows = CsvParser.Parse(csvText);
         foreach (var row in rows)
         {
+            if (string.Equals(row.Shortcut, "shortcut", StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(row.Expansion, "expansion", StringComparison.OrdinalIgnoreCase))
+                continue;
             Shortcuts[row.Shortcut] = row.Expansion;
         }
         Save();
