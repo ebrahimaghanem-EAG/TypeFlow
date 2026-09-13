@@ -369,8 +369,16 @@ public partial class MainWindow : Window
                 defaults = await reader.ReadToEndAsync();
             }
 
+            string? arabicDefaults = null;
+            using (var s = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("TypeFlow.arabic_autocorrect.csv"))
+            using (var reader = new StreamReader(s!))
+            {
+                arabicDefaults = await reader.ReadToEndAsync();
+            }
+
             _store.Shortcuts.Clear();
             int count = _store.ImportCsv(defaults ?? string.Empty);
+            count += _store.ImportCsv(arabicDefaults ?? string.Empty);
             _engine.ReplaceShortcuts(_store.Shortcuts);
             Refresh();
             StatusText.Text = L10n.Tf("msg.restored", count);
