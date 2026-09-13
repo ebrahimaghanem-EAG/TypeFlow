@@ -41,6 +41,10 @@ ehthumbs.db
 Desktop.ini
 .DS_Store
 
+## Build artifacts
+dist/
+*.exe
+
 ## Rider / ReSharper
 _ReSharper*/
 *.[Rr]e[Ss]harper

@@ -33,6 +33,7 @@ internal static class Program
 
         TestCsvParser();
         TestCsvParserQuoting();
+        TestCsvFileEncoding();
         TestCsvWriter();
         TestStoreDefaults();
         TestTypeBuffer();
@@ -40,6 +41,7 @@ internal static class Program
         TestEngineTriggers();
         TestEngineGates();
         TestEngineUndo();
+        TestEngineAltZUndo();
         TestEngineStateClearing();
 
         Console.WriteLine("===================");
@@ -68,14 +70,25 @@ internal static class Program
         string text = File.ReadAllText(path, Encoding.UTF8);
         var rows = CsvParser.Parse(text);
 
-        Check(rows.Count == 1534, $"parses 1534 rows (header counted as data, like popup.js: got {rows.Count})");
+        Check(rows.Count > 0, $"parses {rows.Count} rows (got > 0)");
 
         var dict = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (var row in rows) dict[row.Shortcut] = row.Expansion;
-        Check(dict.Count == 1534, "all keys unique (including header row)");
+        Check(dict.Count == rows.Count, $"all {rows.Count} keys unique (including header row)");
 
         Check(dict.ContainsKey("(c)") && dict["(c)"] == "\u00A9", "contains '(c)' -> \u00A9");
         Check(dict.ContainsKey("abd") && dict["abd"] == "abdominal", "contains 'abd' -> abdominal");
+
+        // Pruned: report templates, clinical sentences, signatures, clinical phrases gone.
+        foreach (var gone in new[] { "adeno", "dexaoo", "cont", "aca", "apc", "ak", "avts" })
+        {
+            Check(!dict.ContainsKey(gone), $"medical macro removed: {gone}");
+        }
+
+        // Kept: generic grammar fixes, typo fixes and accented-word macros.
+        Check(dict.ContainsKey("could of been") && dict["could of been"] == "could have been", "kept 'could of been' grammar fix");
+        Check(dict.ContainsKey("abbout") && dict["abbout"] == "about", "kept typo fix 'abbout'");
+        Check(dict.ContainsKey("vis-a-vis") && dict["vis-a-vis"] == "vis-\u00E0-vis", "kept 'vis-a-vis' accent macro");
     }
 
 private static void TestCsvParserQuoting()
@@ -92,6 +105,59 @@ private static void TestCsvParserQuoting()
 
         var lfOnly = CsvParser.Parse("\"a,b\",c\nz,q");
         Check(lfOnly.Count == 2 && lfOnly[1].Shortcut == "z", "CRLF and LF both handled");
+    }
+
+    // ─── CSV file encoding (UTF-8 BOM / UTF-16 / legacy ANSI) ───
+
+    private static void TestCsvFileEncoding()
+    {
+        Console.WriteLine("CSV file reading (encoding detection, ANSI fallback)");
+
+        string dir = Path.Combine(Path.GetTempPath(), "typeflow_enc_" + Guid.NewGuid());
+        Directory.CreateDirectory(dir);
+        string unique = Path.Combine(dir, "f.csv");
+
+        // Legacy ANSI like Excel's "CSV (Comma delimited)": ©, ®, é plus cp1252
+        // smart-quote/trademark/ellipsis bytes that latin-1 alone cannot render.
+        File.WriteAllBytes(unique, new byte[] { (byte)'(' , (byte)'c', (byte)')', 0x2C, 0xA9, 0x0D, 0x0A,
+                                                 0x72, 0x65, 0x67, 0x2C, 0xAE, 0x0D, 0x0A,
+                                                 0x63, 0x61, 0x66, 0x65, 0x2C, 0xE9, 0x0D, 0x0A,
+                                                 0x64, 0x6F, 0x6E, 0x74, 0x2C, 0x92, 0x0D, 0x0A,
+                                                 0x74, 0x6D, 0x2C, 0x99, 0x0D, 0x0A,
+                                                 0x65, 0x75, 0x2C, 0x85, 0x0D, 0x0A });
+        var ansi = CsvParser.ReadCsvFile(unique);
+        var ansiRows = CsvParser.Parse(ansi);
+        Check(ansiRows.Count == 6, $"ANSI file parsed ({ansiRows.Count} rows)");
+        var ansiMap = ansiRows.ToDictionary(r => r.Shortcut, r => r.Expansion);
+        Check(ansiMap.TryGetValue("(c)", out var c) && c == "\u00A9", "(c) -> \u00A9 decoded from A9 byte");
+        Check(ansiMap.TryGetValue("reg", out var r) && r == "\u00AE", "reg -> \u00AE decoded from AE byte");
+        Check(ansiMap.TryGetValue("cafe", out var e) && e == "\u00E9", "cafe -> \u00E9 decoded from E9 byte");
+        Check(ansiMap.TryGetValue("dont", out var q) && q == "\u2019", "dont -> ' decoded from cp1252 92 byte");
+        Check(ansiMap.TryGetValue("tm", out var t) && t == "\u2122", "tm -> \u2122 decoded from cp1252 99 byte");
+        Check(ansiMap.TryGetValue("eu", out var el) && el == "\u2026", "eu -> \u2026 decoded from cp1252 85 byte");
+
+        // UTF-8 with BOM (what the app/extension export): BOM must not leak into data.
+        string utf8bom = "brb,be right back\nhi,\u00E9\u00E8\u00EA\n";
+        File.WriteAllText(unique, utf8bom, new UTF8Encoding(true));
+        var bomRows = CsvParser.Parse(CsvParser.ReadCsvFile(unique));
+        Check(bomRows.Count == 2 && bomRows[0].Shortcut == "brb", "UTF-8 BOM file: rows parsed, no stray BOM");
+        Check(bomRows.Count == 2 && bomRows[1].Expansion == "\u00E9\u00E8\u00EA", "UTF-8 BOM file: accents intact");
+
+        // UTF-8 without BOM.
+        File.WriteAllText(unique, "vt,\u00E9\nff,\u2026\u00F1\n", new UTF8Encoding(false));
+        var u8 = CsvParser.Parse(CsvParser.ReadCsvFile(unique));
+        Check(u8.Count == 2 && u8[0].Expansion == "\u00E9", "plain UTF-8 (no BOM): accents intact");
+
+        // UTF-16 LE with BOM.
+        File.WriteAllText(unique, "\uFEFF" + "ut,ok\nac,\u00E7\n", Encoding.Unicode);
+        var u16 = CsvParser.Parse(CsvParser.ReadCsvFile(unique));
+        Check(u16.Count == 2 && u16[1].Expansion == "\u00E7", "UTF-16 LE: file parsed with accents");
+
+        var import = new ShortcutStore(unique);
+        import.ImportCsv(CsvParser.ReadCsvFile(unique));
+        Check(import.Count == 2, "store import through encoding-aware read");
+
+        try { Directory.Delete(dir, true); } catch { }
     }
 
     // ─── CSV writer ───
@@ -187,6 +253,18 @@ private static void TestCsvParserQuoting()
 
         b.Backspace();
         Check(b.CurrentWord == "b_r-", "backspace pops one char");
+
+        // Unicode (Arabic) word chars: letters + combining marks (harakat) accumulate.
+        b.Reset();
+        foreach (char c in "\u0645\u0631\u062D\u0628\u0627") b.Append(c); // مرحبا
+        Check(b.CurrentWord == "\u0645\u0631\u062D\u0628\u0627", "Arabic letters accumulate into the word");
+        b.Append('\u064E'); // fatha (combining mark)
+        Check(b.CurrentWord == "\u0645\u0631\u062D\u0628\u0627\u064E", "combining mark keeps word continuity");
+        Check(!TypeBuffer.IsWordChar('!'), "delimiter is not a word char (engine resets the run)");
+
+        b.Reset();
+        foreach (char c in "\u0627\u0644\u0633\u0644\u0627\u0645") b.Append(c); // السلام
+        Check(b.CurrentWord == "\u0627\u0644\u0633\u0644\u0627\u0645", "Arabic word buffered after reset");
     }
 
     // ─── Engine: focus stubs ───
@@ -278,6 +356,14 @@ private static void TestCsvParserQuoting()
         // dict value is empty string — the extension trims expansion on import, so store never holds empty;
         // engine still returns true and injects just the trigger (parity with Object.assign empty case).
         Check(engine4.HandleTriggerForTest(PlainInputField(), ' ') == true, "empty expansion still consumes trigger");
+
+        // Arabic shortcut expands on Space (Unicode word chars, Unicode-key injection).
+        var (ar, _, arSink) = MakeEngine(new Dictionary<string, string> { ["\u0645\u0631\u062D\u0628\u0627"] = "\u0623\u0647\u0644\u0627\u064B \u0628\u0643" });
+        ar.SetBufferForTest("\u0645\u0631\u062D\u0628\u0627");
+        Check(ar.HandleTriggerForTest(PlainInputField(), ' ') == true, "Arabic shortcut consumed space trigger");
+        Check(arSink.TotalBackspaces() == 5, $"Arabic removes the typed shortcut (5 backspaces)");
+        Check(arSink.LastText() == "\u0623\u0647\u0644\u0627\u064B \u0628\u0643 ", "Arabic injects expansion + space");
+        Check(ar.PeekBufferForTest() == "\u0623\u0647\u0644\u0627\u064B \u0628\u0643 ", "Arabic buffer reflects replacement text");
     }
 
     private static void TestEngineTriggers()
@@ -338,6 +424,26 @@ private static void TestCsvParserQuoting()
         focus2.Current = RichField(); // focus moved
         Check(engine2.HandleKey(KeySim.Down(0x11)) == false, "ctrl down (field 2)");
         Check(engine2.HandleKey(KeySim.Down(0x5A)) == false, "ctrl+Z passes through when focus changed");
+    }
+
+    private static void TestEngineAltZUndo()
+    {
+        Console.WriteLine("Engine: Alt+Z undo (alternative to Ctrl+Z)");
+
+        var (engine, focus, sink) = MakeEngine();
+        focus.Current = PlainInputField();
+
+        engine.SetBufferForTest("brb");
+        engine.HandleTriggerForTest(PlainInputField(), ' ');
+
+        // alt down, then Z
+        Check(engine.HandleKey(KeySim.Down(0x12)) == false, "alt keydown passes through");
+        Check(engine.HandleKey(KeySim.Down(0x5A)) == true, "alt+Z consumed when last action was expansion");
+
+        int backspaces = sink.Backspaces.Sum();
+        string lastText = sink.Texts.Count > 0 ? sink.Texts[^1] : string.Empty;
+        Check(backspaces == 3 + "be right back ".Length, $"alt+Z undo removed expansion+trigger ({backspaces} backspaces)");
+        Check(lastText == "brb ", "alt+Z re-injects shortcut + trigger");
     }
 
     private static void TestEngineStateClearing()

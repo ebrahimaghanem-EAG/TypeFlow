@@ -75,7 +75,7 @@ public static class TextInjector
         kbd.wScan = (ushort)c;
         kbd.dwFlags = NativeMethods.KEYEVENTF_UNICODE | (down ? 0u : NativeMethods.KEYEVENTF_KEYUP);
         kbd.time = 0;
-        kbd.dwExtraInfo = IntPtr.Zero;
+        kbd.dwExtraInfo = NativeMethods.GetMessageExtraInfo();
 
         return new NativeMethods.InputData
         {
@@ -93,7 +93,7 @@ public static class TextInjector
         if ((kbd.dwFlags & NativeMethods.KEYEVENTF_KEYUP) == 0 && kbd.wScan > 0x00FF)
             kbd.dwFlags |= NativeMethods.KEYEVENTF_EXTENDEDKEY;
         kbd.time = 0;
-        kbd.dwExtraInfo = IntPtr.Zero;
+        kbd.dwExtraInfo = NativeMethods.GetMessageExtraInfo();
 
         return new NativeMethods.InputData
         {

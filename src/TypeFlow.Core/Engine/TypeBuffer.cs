@@ -1,20 +1,38 @@
+using System.Globalization;
 using System.Text;
 
 namespace TypeFlow.Core.Engine;
 
 /// <summary>
 /// Rolling buffer of the trailing "word" under the caret. Word characters mirror the
-/// extension's pattern <c>([a-zA-Z0-9_.\-]+)</c>. Non-word printable characters act
-/// as boundaries (the extension's regex anchors to <c>$</c> through any delimiter),
-/// so any delimiter resets the trailing run, recreating maximal-munch behaviour.
+/// extension's pattern <c>([a-zA-Z0-9_.\-]+)</c> plus every Unicode letter/digit and
+/// combining mark, so Arabic (and other non-Latin) shortcuts accumulate. Non-word
+/// printable characters act as boundaries (the extension's regex anchors to <c>$</c>
+/// through any delimiter), so any delimiter resets the trailing run, recreating
+/// maximal-munch behaviour.
 /// </summary>
 public sealed class TypeBuffer
 {
     private readonly StringBuilder _trailing = new StringBuilder(64);
 
     public static bool IsWordChar(char c)
-        => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')
-           || c == '_' || c == '.' || c == '-';
+    {
+        switch (CharUnicodeInfo.GetUnicodeCategory(c))
+        {
+            case UnicodeCategory.UppercaseLetter:
+            case UnicodeCategory.LowercaseLetter:
+            case UnicodeCategory.TitlecaseLetter:
+            case UnicodeCategory.ModifierLetter:
+            case UnicodeCategory.OtherLetter:            // Arabic, Cyrillic, CJK, …
+            case UnicodeCategory.DecimalDigitNumber:
+            case UnicodeCategory.NonSpacingMark:          // Arabic harakat / combining diacritics
+            case UnicodeCategory.SpacingCombiningMark:
+            case UnicodeCategory.EnclosingMark:
+                return true;
+            default:
+                return c is '_' or '.' or '-';
+        }
+    }
 
     public void Append(char c)
     {

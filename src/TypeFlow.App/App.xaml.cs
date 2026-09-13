@@ -1,17 +1,21 @@
+using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 using System.Windows;
+using TypeFlow.App.Localization;
 using TypeFlow.Core.Engine;
 using TypeFlow.Core.Focus;
 using TypeFlow.Core.Hook;
 using TypeFlow.Core.Storage;
-using MessageBox = System.Windows.MessageBox;
 
 namespace TypeFlow.App;
 
 public partial class App : System.Windows.Application
 {
     private Mutex? _singleInstance;
+    private EventWaitHandle? _showRequestHandle;
+    private Thread? _showWaiterThread;
     private ShortcutStore? _store;
     private FocusTracker? _focusTracker;
     private ShortcutEngine? _engine;
@@ -44,26 +48,45 @@ public partial class App : System.Windows.Application
         _singleInstance = new Mutex(true, "Local\\TypeFlow.SingleInstance", out isPrimary);
         if (!isPrimary)
         {
-            MessageBox.Show("TypeFlow is already running (check the system tray).", "TypeFlow",
-                MessageBoxButton.OK, MessageBoxImage.Information);
+            // Another TypeFlow is already running (likely hidden in the tray).
+            // Ask it to bring its window forward, then exit silently.
+            try { EventWaitHandle.OpenExisting("Local\\TypeFlow.ShowRequest")?.Set(); } catch { }
             Shutdown();
             return;
         }
 
+        // A re-launch tells us to surface the window again.
+        _showRequestHandle = new EventWaitHandle(false, EventResetMode.AutoReset, "Local\\TypeFlow.ShowRequest");
+        _showWaiterThread = new Thread(() =>
+        {
+            while (true)
+            {
+                try
+                {
+                    if (_showRequestHandle == null) break;
+                    _showRequestHandle.WaitOne();
+                    Dispatcher.Invoke(ShowMainWindow);
+                }
+                catch { break; }
+            }
+        }) { IsBackground = true };
+        _showWaiterThread.Start();
+
         Directory.CreateDirectory(DataDirectory);
 
-        // Single-line-input toggle persisted across restarts.
-        bool inputEnabled = true;
+        // Persisted settings (input toggle + language); old {"isInputEnabled":…}
+        // payloads still deserialize. Empty language = auto-detect from the OS.
         string configPath = Path.Combine(DataDirectory, "settings.json");
-        if (File.Exists(configPath))
+        var settings = SettingsIo.Load(configPath);
+        bool inputEnabled = settings.IsInputEnabled;
+        string language = settings.Language.Length > 0
+            ? settings.Language
+            : CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? "ar" : "en";
+        try
         {
-            try
-            {
-                var cfg = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, bool>>(File.ReadAllText(configPath));
-                if (cfg != null && cfg.TryGetValue("isInputEnabled", out bool v)) inputEnabled = v;
-            }
-            catch { }
+            L10n.Apply(language);
         }
+        catch { }
 
         string? defaults = null;
         try
@@ -150,6 +173,7 @@ public partial class App : System.Windows.Application
         }
         finally
         {
+            try { _showRequestHandle?.Dispose(); } catch { }
             Shutdown();
         }
     }

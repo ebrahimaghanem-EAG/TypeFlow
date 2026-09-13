@@ -8,7 +8,8 @@ namespace TypeFlow.Core.Engine;
 /// <summary>
 /// Ports the extension's autocorrect logic to a global Windows context.
 /// Replicates the keydown capture-phase listener in content.js: trigger on Space/'.',
-/// word grammar <c>([a-zA-Z0-9_.\-]+)</c>, case-insensitive lookup, custom Ctrl+Z undo,
+/// word grammar <c>([a-zA-Z0-9_.\-]+)</c> plus Unicode letters (so Arabic shortcuts
+/// expand), case-insensitive lookup, custom Ctrl+Z undo,
 /// and the <c>lastExpansionState</c> clearing rules.
 /// </summary>
 public sealed class ShortcutEngine
@@ -103,6 +104,11 @@ public sealed class ShortcutEngine
 
             if (alt && !ctrl)
             {
+                if (key.VirtualKey == 0x5A) // Alt+Z
+                {
+                    if (TryUndo(field)) return true;
+                    return false;
+                }
                 // Plain Alt shortcuts (e.g. Alt+S) — do not buffer or trigger.
                 _last = null;
                 _buffer.Reset();

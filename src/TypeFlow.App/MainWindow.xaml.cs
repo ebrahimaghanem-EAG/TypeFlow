@@ -4,9 +4,11 @@ using System.ComponentModel;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using Microsoft.Win32;
+using TypeFlow.App.Localization;
 using TypeFlow.Core.Engine;
 using TypeFlow.Core.Storage;
 using MessageBox = System.Windows.MessageBox;
@@ -23,6 +25,9 @@ public partial class MainWindow : Window
     private readonly ObservableCollection<ShortcutRow> _rows = new ObservableCollection<ShortcutRow>();
     private readonly ListCollectionView _view;
     private string? _editingKey;
+    private bool _addSectionExpanded = true;
+    private bool _languageInitializing = true;
+    private bool _restoringToggles;
 
     public sealed class ShortcutRow
     {
@@ -42,14 +47,29 @@ public partial class MainWindow : Window
         // Set the toggle visuals from the engine AFTER the full visual tree exists;
         // setting them during XAML parse fires Toggle_Changed before all controls
         // are wired (the original silent startup crash).
-        ActiveToggle.IsChecked = _engine.IsEnabled;
-        InputToggle.IsChecked = _engine.IsInputEnabled;
+        _restoringToggles = true;
+        try
+        {
+            ActiveToggle.IsChecked = _engine.IsEnabled;
+            InputToggle.IsChecked = _engine.IsInputEnabled;
+        }
+        finally
+        {
+            _restoringToggles = false;
+        }
 
         _view = (ListCollectionView)CollectionViewSource.GetDefaultView(_rows);
         _view.Filter = FilterRow;
         ShortcutList.ItemsSource = _view;
 
         SearchBox.TextChanged += (s, e) => { _view.Refresh(); RefreshCount(); };
+
+        // Language switcher: reflect the applied language, then subscribe to
+        // live changes (ResourceDictionary swap re-resolves all DynamicResource).
+        LanguageCombo.SelectedIndex = L10n.Code == "ar" ? 1 : 0;
+        _languageInitializing = false;
+        L10n.LanguageChanged += OnLanguageChanged;
+        OnLanguageChanged();
 
         Refresh();
     }
@@ -71,16 +91,67 @@ public partial class MainWindow : Window
             _rows.Add(new ShortcutRow { Shortcut = pair.Key, Expansion = pair.Value });
         }
         _view.Refresh();
-        CountText.Text = $"{_view.Cast<object>().Count()} of {_store.Count} shortcuts";
+        CountText.Text = L10n.Tf("ui.countFormat", _view.Cast<object>().Count(), _store.Count);
+        EmptyText.Visibility = _view.IsEmpty ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void RefreshCount()
     {
-        CountText.Text = $"{_view.Cast<object>().Count()} of {_store.Count} shortcuts";
+        CountText.Text = L10n.Tf("ui.countFormat", _view.Cast<object>().Count(), _store.Count);
+        EmptyText.Visibility = _view.IsEmpty ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void LanguageCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_languageInitializing || sender is not System.Windows.Controls.ComboBox cb) return;
+        string code = cb.SelectedIndex == 1 ? "ar" : "en";
+        if (code == L10n.Code) return;
+        L10n.Apply(code);
+        PersistSettings();
+    }
+
+    private void OnLanguageChanged()
+    {
+        FlowDirection = L10n.IsRtl
+            ? System.Windows.FlowDirection.RightToLeft
+            : System.Windows.FlowDirection.LeftToRight;
+        ApplyFormState();
+        RefreshCount();
+    }
+
+    /// <summary>Form title + button reflect add vs edit state (called after every edit-mode change).</summary>
+    private void ApplyFormState()
+    {
+        bool editing = _editingKey != null;
+        FormTitle.Text = L10n.T(editing ? "ui.editShortcut" : "ui.addShortcut");
+        AddButton.Content = L10n.T(editing ? "ui.updateShortcut" : "ui.addShortcut");
+    }
+
+    private void AddSectionToggle_Click(object sender, RoutedEventArgs e)
+    {
+        _addSectionExpanded = !_addSectionExpanded;
+        ApplyAddSectionState();
+    }
+
+    private void ApplyAddSectionState()
+    {
+        AddFormCard.Visibility = _addSectionExpanded ? Visibility.Visible : Visibility.Collapsed;
+        AddSectionChevron.Text = _addSectionExpanded ? "\uE70E" : "\uE70D";
+    }
+
+    // Editing a row opens the form even if the section was collapsed.
+    private void ExpandAddSection()
+    {
+        if (!_addSectionExpanded)
+        {
+            _addSectionExpanded = true;
+            ApplyAddSectionState();
+        }
     }
 
     private void Toggle_Changed(object sender, RoutedEventArgs e)
     {
+        if (_restoringToggles) return;
         try
         {
             if (_engine == null || ActiveToggle == null || InputToggle == null) return;
@@ -98,9 +169,12 @@ public partial class MainWindow : Window
     {
         try
         {
-            var cfg = new Dictionary<string, bool> { ["isInputEnabled"] = _engine.IsInputEnabled };
-            Directory.CreateDirectory(Path.GetDirectoryName(_configPath) ?? App.DataDirectory);
-            File.WriteAllText(_configPath, JsonSerializer.Serialize(cfg));
+            var cfg = new AppSettings
+            {
+                IsInputEnabled = _engine.IsInputEnabled,
+                Language = L10n.Code
+            };
+            SettingsIo.Save(_configPath, cfg);
         }
         catch { }
     }
@@ -114,22 +188,22 @@ public partial class MainWindow : Window
 
         if (shortcut.Length == 0)
         {
-            ValidationText.Text = "Shortcut is required.";
+            ValidationText.Text = L10n.T("msg.shortcutRequired");
             return;
         }
         if (shortcut.Length > 50)
         {
-            ValidationText.Text = "Shortcut is too long. Maximum 50 characters.";
+            ValidationText.Text = L10n.T("msg.shortcutTooLong");
             return;
         }
         if (expansion.Length == 0)
         {
-            ValidationText.Text = "Expansion text is required.";
+            ValidationText.Text = L10n.T("msg.expansionRequired");
             return;
         }
         if (expansion.Length > 5000)
         {
-            ValidationText.Text = "Expansion text is too long. Maximum 5000 characters.";
+            ValidationText.Text = L10n.T("msg.expansionTooLong");
             return;
         }
 
@@ -139,7 +213,7 @@ public partial class MainWindow : Window
         {
             if (_editingKey != key && _store.Contains(key))
             {
-                ValidationText.Text = $"\"{key}\" already exists. Overwrite? (cancel edit / import it instead)";
+                ValidationText.Text = L10n.Tf("msg.existsEdit", key);
                 return;
             }
             _store.Remove(_editingKey);
@@ -149,7 +223,7 @@ public partial class MainWindow : Window
         {
             if (_store.Contains(key))
             {
-                var result = MessageBox.Show($"\"{key}\" already exists. Overwrite it?", "TypeFlow",
+                var result = MessageBox.Show(L10n.Tf("msg.existsAdd", key), "TypeFlow",
                     MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (result != MessageBoxResult.Yes) return;
             }
@@ -161,22 +235,21 @@ public partial class MainWindow : Window
 
         ShortcutBox.Text = string.Empty;
         ExpansionBox.Text = string.Empty;
-        FormTitle.Text = "Add Shortcut";
-        AddButton.Content = "Add Shortcut";
+        ApplyFormState();
         CancelEditButton.Visibility = Visibility.Collapsed;
 
         Refresh();
-        StatusText.Text = "Shortcut saved.";
+        StatusText.Text = L10n.T("msg.saved");
     }
 
     private void EditButton_Click(object sender, RoutedEventArgs e)
     {
         if ((sender as System.Windows.FrameworkElement)?.Tag is not ShortcutRow row) return;
+        ExpandAddSection();
         _editingKey = row.Shortcut;
         ShortcutBox.Text = row.Shortcut;
         ExpansionBox.Text = row.Expansion;
-        FormTitle.Text = "Edit Shortcut";
-        AddButton.Content = "Update Shortcut";
+        ApplyFormState();
         CancelEditButton.Visibility = Visibility.Visible;
         ValidationText.Text = string.Empty;
         ShortcutBox.Focus();
@@ -188,8 +261,7 @@ public partial class MainWindow : Window
         _editingKey = null;
         ShortcutBox.Text = string.Empty;
         ExpansionBox.Text = string.Empty;
-        FormTitle.Text = "Add Shortcut";
-        AddButton.Content = "Add Shortcut";
+        ApplyFormState();
         CancelEditButton.Visibility = Visibility.Collapsed;
         ValidationText.Text = string.Empty;
     }
@@ -197,7 +269,7 @@ public partial class MainWindow : Window
     private void DeleteButton_Click(object sender, RoutedEventArgs e)
     {
         if ((sender as System.Windows.FrameworkElement)?.Tag is not ShortcutRow row) return;
-        var result = MessageBox.Show($"Are you sure you want to delete the shortcut for \"{row.Shortcut}\"?",
+        var result = MessageBox.Show(L10n.Tf("msg.confirmDelete", row.Shortcut),
             "TypeFlow", MessageBoxButton.YesNo, MessageBoxImage.Warning);
         if (result != MessageBoxResult.Yes) return;
 
@@ -206,7 +278,7 @@ public partial class MainWindow : Window
         _store.Save();
         _engine.ReplaceShortcuts(_store.Shortcuts);
         Refresh();
-        StatusText.Text = $"Deleted \"{row.Shortcut}\".";
+        StatusText.Text = L10n.Tf("msg.deleted", row.Shortcut);
     }
 
     private void ImportButton_Click(object sender, RoutedEventArgs e)
@@ -214,23 +286,23 @@ public partial class MainWindow : Window
         var dlg = new OpenFileDialog
         {
             Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*",
-            Title = "Import shortcuts CSV"
+            Title = L10n.T("dlg.importTitle")
         };
         if (dlg.ShowDialog(this) != true) return;
 
         try
         {
-            string text = File.ReadAllText(dlg.FileName, System.Text.Encoding.UTF8);
+            string text = CsvParser.ReadCsvFile(dlg.FileName);
             int count = _store.ImportCsv(text);
             _engine.ReplaceShortcuts(_store.Shortcuts);
             Refresh();
             StatusText.Text = count > 0
-                ? $"Imported {count} shortcuts."
-                : "No valid shortcut rows found.";
+                ? L10n.Tf("msg.imported", count)
+                : L10n.T("msg.noValidRows");
         }
         catch (Exception ex)
         {
-            MessageBox.Show("Import failed: " + ex.Message, "TypeFlow", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(L10n.Tf("msg.importFailed", ex.Message), "TypeFlow", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
@@ -238,7 +310,7 @@ public partial class MainWindow : Window
     {
         if (_store.Count == 0)
         {
-            MessageBox.Show("No shortcuts to export.", "TypeFlow", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(L10n.T("msg.noExport"), "TypeFlow", MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
 
@@ -246,25 +318,25 @@ public partial class MainWindow : Window
         {
             Filter = "CSV files (*.csv)|*.csv",
             FileName = "typeflow_shortcuts.csv",
-            Title = "Export shortcuts CSV"
+            Title = L10n.T("dlg.exportTitle")
         };
         if (dlg.ShowDialog(this) != true) return;
 
         try
         {
             CsvWriter.ExportToFile(dlg.FileName, _store.Shortcuts);
-            StatusText.Text = "Exported to " + dlg.FileName;
+            StatusText.Text = L10n.Tf("msg.exported", dlg.FileName);
         }
         catch (Exception ex)
         {
-            MessageBox.Show("Export failed: " + ex.Message, "TypeFlow", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(L10n.Tf("msg.exportFailed", ex.Message), "TypeFlow", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
     private async void ResetButton_Click(object sender, RoutedEventArgs e)
     {
         var result = MessageBox.Show(
-            "Replace ALL shortcuts with the bundled default set? Your current shortcuts will be lost.",
+            L10n.T("msg.confirmReset"),
             "TypeFlow", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
         if (result != MessageBoxResult.Yes) return;
 
@@ -281,11 +353,11 @@ public partial class MainWindow : Window
             int count = _store.ImportCsv(defaults ?? string.Empty);
             _engine.ReplaceShortcuts(_store.Shortcuts);
             Refresh();
-            StatusText.Text = $"Restored {count} default shortcuts.";
+            StatusText.Text = L10n.Tf("msg.restored", count);
         }
         catch (Exception ex)
         {
-            MessageBox.Show("Reset failed: " + ex.Message, "TypeFlow", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(L10n.Tf("msg.resetFailed", ex.Message), "TypeFlow", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 }

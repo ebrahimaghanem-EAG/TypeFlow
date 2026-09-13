@@ -1,0 +1,69 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+    <!-- Header -->
+    <sys:String x:Key="ui.title">TypeFlow Beta — Text Expander</sys:String>
+    <sys:String x:Key="ui.subtitle">Text expander &amp; autocorrect</sys:String>
+    <sys:String x:Key="ui.active">Active</sys:String>
+    <sys:String x:Key="ui.singleline">Single-line inputs</sys:String>
+    <sys:String x:Key="ui.singlelineTip">Only expands in single-line edit fields (parity with the extension's INPUT toggle)</sys:String>
+    <sys:String x:Key="ui.language">Language</sys:String>
+
+    <!-- Toolbar -->
+    <sys:String x:Key="ui.searchTip">Search shortcut or expansion</sys:String>
+    <sys:String x:Key="ui.import">Import .CSV</sys:String>
+    <sys:String x:Key="ui.export">Export .CSV</sys:String>
+    <sys:String x:Key="ui.reset">Reset to defaults</sys:String>
+
+    <!-- Add / edit form -->
+    <sys:String x:Key="ui.addShortcut">Add shortcut</sys:String>
+    <sys:String x:Key="ui.editShortcut">Edit Shortcut</sys:String>
+    <sys:String x:Key="ui.updateShortcut">Update Shortcut</sys:String>
+    <sys:String x:Key="ui.cancel">Cancel</sys:String>
+    <sys:String x:Key="ui.formHint">Expand, e.g. hello → your text (after a space or period)</sys:String>
+    <sys:String x:Key="ui.fieldShortcut">Shortcut</sys:String>
+    <sys:String x:Key="ui.shortcutTip">The trigger text, e.g. brb</sys:String>
+    <sys:String x:Key="ui.fieldExpansion">Expansion text (max 5000 characters)</sys:String>
+    <sys:String x:Key="ui.expansionTip">The text inserted when the shortcut is typed</sys:String>
+
+    <!-- List -->
+    <sys:String x:Key="ui.shortcutsHeader">Shortcuts</sys:String>
+    <sys:String x:Key="ui.hoverHint">Hover a row to edit or delete</sys:String>
+    <sys:String x:Key="ui.countFormat">{0} of {1} shortcuts</sys:String>
+    <sys:String x:Key="ui.empty">No shortcuts match your search.</sys:String>
+    <sys:String x:Key="ui.editTip">Edit</sys:String>
+    <sys:String x:Key="ui.deleteTip">Delete</sys:String>
+
+    <!-- Footer -->
+    <sys:String x:Key="ui.footerTip">Expands after Space or .  ·  closes to the system tray</sys:String>
+
+    <!-- Validation / status / dialogs -->
+    <sys:String x:Key="msg.shortcutRequired">Shortcut is required.</sys:String>
+    <sys:String x:Key="msg.shortcutTooLong">Shortcut is too long. Maximum 50 characters.</sys:String>
+    <sys:String x:Key="msg.expansionRequired">Expansion text is required.</sys:String>
+    <sys:String x:Key="msg.expansionTooLong">Expansion text is too long. Maximum 5000 characters.</sys:String>
+    <sys:String x:Key="msg.existsEdit">"{0}" already exists. Overwrite? (cancel edit / import it instead)</sys:String>
+    <sys:String x:Key="msg.existsAdd">"{0}" already exists. Overwrite it?</sys:String>
+    <sys:String x:Key="msg.saved">Shortcut saved.</sys:String>
+    <sys:String x:Key="msg.deleted">Deleted "{0}".</sys:String>
+    <sys:String x:Key="msg.confirmDelete">Are you sure you want to delete the shortcut for "{0}"?</sys:String>
+    <sys:String x:Key="msg.imported">Imported {0} shortcuts.</sys:String>
+    <sys:String x:Key="msg.noValidRows">No valid shortcut rows found.</sys:String>
+    <sys:String x:Key="msg.importFailed">Import failed: {0}</sys:String>
+    <sys:String x:Key="msg.exportFailed">Export failed: {0}</sys:String>
+    <sys:String x:Key="msg.noExport">No shortcuts to export.</sys:String>
+    <sys:String x:Key="msg.exported">Exported to {0}</sys:String>
+    <sys:String x:Key="msg.confirmReset">Replace ALL shortcuts with the bundled default set? Your current shortcuts will be lost.</sys:String>
+    <sys:String x:Key="msg.restored">Restored {0} default shortcuts.</sys:String>
+    <sys:String x:Key="msg.resetFailed">Reset failed: {0}</sys:String>
+    <sys:String x:Key="dlg.importTitle">Import shortcuts CSV</sys:String>
+    <sys:String x:Key="dlg.exportTitle">Export shortcuts CSV</sys:String>
+
+    <!-- Tray -->
+    <sys:String x:Key="tray.title">TypeFlow — text expander</sys:String>
+    <sys:String x:Key="tray.open">Open TypeFlow</sys:String>
+    <sys:String x:Key="tray.active">TypeFlow Active</sys:String>
+    <sys:String x:Key="tray.exit">Exit</sys:String>
+
+</ResourceDictionary>

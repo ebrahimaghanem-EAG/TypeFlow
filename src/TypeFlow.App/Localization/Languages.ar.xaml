@@ -1,0 +1,69 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+    <!-- Header -->
+    <sys:String x:Key="ui.title">TypeFlow Beta — موسّع النصوص</sys:String>
+    <sys:String x:Key="ui.subtitle">موسّع النصوص والتصحيح التلقائي</sys:String>
+    <sys:String x:Key="ui.active">نشط</sys:String>
+    <sys:String x:Key="ui.singleline">حقول الإدخال أحادية السطر</sys:String>
+    <sys:String x:Key="ui.singlelineTip">يتوسّع فقط في حقول الإدخال أحادية السطر (كما في مفتاح INPUT في الامتداد)</sys:String>
+    <sys:String x:Key="ui.language">اللغة</sys:String>
+
+    <!-- Toolbar -->
+    <sys:String x:Key="ui.searchTip">ابحث عن الاختصار أو التوسّع</sys:String>
+    <sys:String x:Key="ui.import">استيراد CSV</sys:String>
+    <sys:String x:Key="ui.export">تصدير CSV</sys:String>
+    <sys:String x:Key="ui.reset">إعادة التعيين الافتراضي</sys:String>
+
+    <!-- Add / edit form -->
+    <sys:String x:Key="ui.addShortcut">إضافة اختصار</sys:String>
+    <sys:String x:Key="ui.editShortcut">تعديل الاختصار</sys:String>
+    <sys:String x:Key="ui.updateShortcut">تحديث الاختصار</sys:String>
+    <sys:String x:Key="ui.cancel">إلغاء</sys:String>
+    <sys:String x:Key="ui.formHint">مثال: اكتب hello ثم مسافة أو نقطة ليتم استبدالها بنصّك</sys:String>
+    <sys:String x:Key="ui.fieldShortcut">الاختصار</sys:String>
+    <sys:String x:Key="ui.shortcutTip">نصّ المشغّل، مثال: brb</sys:String>
+    <sys:String x:Key="ui.fieldExpansion">نص التوسّع (حتى 5000 حرف)</sys:String>
+    <sys:String x:Key="ui.expansionTip">النص الذي يُدرج عند كتابة الاختصار</sys:String>
+
+    <!-- List -->
+    <sys:String x:Key="ui.shortcutsHeader">الاختصارات</sys:String>
+    <sys:String x:Key="ui.hoverHint">مرِّر على صف للتعديل أو الحذف</sys:String>
+    <sys:String x:Key="ui.countFormat">{0} من {1} اختصارٍ</sys:String>
+    <sys:String x:Key="ui.empty">لا توجد اختصارات تطابق البحث.</sys:String>
+    <sys:String x:Key="ui.editTip">تعديل</sys:String>
+    <sys:String x:Key="ui.deleteTip">حذف</sys:String>
+
+    <!-- Footer -->
+    <sys:String x:Key="ui.footerTip">يتوسّع بعد مسافة أو نقطة · يُغلق إلى شريط النظام</sys:String>
+
+    <!-- Validation / status / dialogs -->
+    <sys:String x:Key="msg.shortcutRequired">الاختصار مطلوب.</sys:String>
+    <sys:String x:Key="msg.shortcutTooLong">الاختصار طويل جدًا. الحد الأقصى 50 حرفًا.</sys:String>
+    <sys:String x:Key="msg.expansionRequired">نص التوسّع مطلوب.</sys:String>
+    <sys:String x:Key="msg.expansionTooLong">نص التوسّع طويل جدًا. الحد الأقصى 5000 حرف.</sys:String>
+    <sys:String x:Key="msg.existsEdit">الاختصار "{0}" موجود بالفعل. هل تريد استبداله؟ (أو إلغاء التعديل / استيراده)</sys:String>
+    <sys:String x:Key="msg.existsAdd">الاختصار "{0}" موجود بالفعل. هل تريد استبداله؟</sys:String>
+    <sys:String x:Key="msg.saved">تم حفظ الاختصار.</sys:String>
+    <sys:String x:Key="msg.deleted">تم حذف "{0}".</sys:String>
+    <sys:String x:Key="msg.confirmDelete">هل أنت متأكد من حذف الاختصار "{0}"؟</sys:String>
+    <sys:String x:Key="msg.imported">تم استيراد {0} اختصارًا.</sys:String>
+    <sys:String x:Key="msg.noValidRows">لم يتم العثور على صفوف صالحة.</sys:String>
+    <sys:String x:Key="msg.importFailed">فشل الاستيراد: {0}</sys:String>
+    <sys:String x:Key="msg.exportFailed">فشل التصدير: {0}</sys:String>
+    <sys:String x:Key="msg.noExport">لا توجد اختصارات للتصدير.</sys:String>
+    <sys:String x:Key="msg.exported">تم التصدير إلى {0}</sys:String>
+    <sys:String x:Key="msg.confirmReset">استبدال جميع الاختصارات بالمجموعة الافتراضية المضمّنة؟ ستُفقد اختصاراتك الحالية.</sys:String>
+    <sys:String x:Key="msg.restored">تمت استعادة {0} اختصارًا افتراضيًا.</sys:String>
+    <sys:String x:Key="msg.resetFailed">فشل إعادة التعيين: {0}</sys:String>
+    <sys:String x:Key="dlg.importTitle">استيراد اختصارات CSV</sys:String>
+    <sys:String x:Key="dlg.exportTitle">تصدير اختصارات CSV</sys:String>
+
+    <!-- Tray -->
+    <sys:String x:Key="tray.title">TypeFlow — موسّع النصوص</sys:String>
+    <sys:String x:Key="tray.open">فتح TypeFlow</sys:String>
+    <sys:String x:Key="tray.active">TypeFlow نشط</sys:String>
+    <sys:String x:Key="tray.exit">خروج</sys:String>
+
+</ResourceDictionary>

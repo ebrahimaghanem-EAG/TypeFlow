@@ -3,19 +3,26 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
+    <RollForward>LatestMajor</RollForward>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
+    <Version>1.0.0-beta</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
     <RootNamespace>TypeFlow.App</RootNamespace>
     <AssemblyName>TypeFlow</AssemblyName>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>assets\TypeFlow.ico</ApplicationIcon>
     <NoWarn>$(NoWarn);WFAC010</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\TypeFlow.Core\TypeFlow.Core.csproj" />
+    <Resource Include="assets\TypeFlow.ico" />
+    <EmbeddedResource Include="assets\TypeFlow.ico" LogicalName="TypeFlow.TrayIcon.ico" />
   </ItemGroup>
 
   <ItemGroup>

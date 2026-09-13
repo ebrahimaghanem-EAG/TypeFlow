@@ -143,7 +143,7 @@ public static class NativeMethods
     public const int VK_RMENU = 0xA5;
 
     // Keyboard input (SendInput)
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
     public struct InputData
     {
         public uint type;
@@ -203,6 +203,9 @@ public static class NativeMethods
     public static extern uint MapVirtualKey(uint uCode, uint uMapType);
 
     public const uint MAPVK_VK_TO_VSC = 0;
+
+    [DllImport("user32.dll")]
+    public static extern IntPtr GetMessageExtraInfo();
 
     public static readonly int SizeOfInput = Marshal.SizeOf(typeof(InputData));
     public static readonly int SizeOfKbdIn = Marshal.SizeOf(typeof(KEYBDINPUT));

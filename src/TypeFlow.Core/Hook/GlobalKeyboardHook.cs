@@ -76,10 +76,11 @@ public sealed class GlobalKeyboardHook : IDisposable
     private void HookThreadMain()
     {
         _threadId = NativeMethods.GetCurrentThreadId();
+
         _hookId = NativeMethods.SetWindowsHookEx(
             NativeMethods.WH_KEYBOARD_LL,
             _proc!,
-            Marshal.GetHINSTANCE(typeof(GlobalKeyboardHook).Module),
+            IntPtr.Zero,
             0);
 
         if (_hookId == IntPtr.Zero)

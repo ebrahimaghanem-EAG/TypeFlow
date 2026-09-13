@@ -1,17 +1,251 @@
 <Window x:Class="TypeFlow.App.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="TypeFlow — Text Expander"
-        Width="760" Height="620" MinWidth="620" MinHeight="480"
-        WindowStartupLocation="CenterScreen">
+        Title="{DynamicResource ui.title}"
+        Width="900" Height="660" MinWidth="780" MinHeight="600"
+        WindowStartupLocation="CenterScreen"
+        FontFamily="Segoe UI Variable Text, Segoe UI"
+        FontSize="13"
+        Background="#F2F3F7"
+        Icon="pack://application:,,,/TypeFlow;component/assets/TypeFlow.ico">
+
     <Window.Resources>
-        <Style x:Key="ToggleLabel" TargetType="TextBlock">
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="0,0,8,0"/>
+
+        <!-- ===== Palette ===== -->
+        <SolidColorBrush x:Key="AppBackgroundBrush" Color="#F2F3F7"/>
+        <SolidColorBrush x:Key="SurfaceBrush" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="BorderBrush" Color="#E3E5EB"/>
+        <SolidColorBrush x:Key="RowHairlineBrush" Color="#EEF0F4"/>
+        <SolidColorBrush x:Key="TextPrimaryBrush" Color="#17181C"/>
+        <SolidColorBrush x:Key="TextSecondaryBrush" Color="#5F6470"/>
+        <SolidColorBrush x:Key="TextFaintBrush" Color="#8A90A0"/>
+        <SolidColorBrush x:Key="AccentBrush" Color="#0F6CBD"/>
+        <SolidColorBrush x:Key="AccentHoverBrush" Color="#0A5DA6"/>
+        <SolidColorBrush x:Key="AccentPressedBrush" Color="#084F8E"/>
+        <SolidColorBrush x:Key="AccentTintBrush" Color="#E8F1FB"/>
+        <SolidColorBrush x:Key="ChipBrush" Color="#EAF1FA"/>
+        <SolidColorBrush x:Key="ChipTextBrush" Color="#0A5DA6"/>
+        <SolidColorBrush x:Key="RowHoverBrush" Color="#F4F6F9"/>
+        <SolidColorBrush x:Key="DangerBrush" Color="#B42318"/>
+        <SolidColorBrush x:Key="DangerTintBrush" Color="#FDECEA"/>
+        <SolidColorBrush x:Key="TrackBrush" Color="#C9CDD4"/>
+        <SolidColorBrush x:Key="InputBorderBrush" Color="#D9DCE2"/>
+
+        <!-- ===== Base button template: accent-aware hover/press overlays ===== -->
+        <Style x:Key="BaseButton" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Padding" Value="16,0"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Border x:Name="Bd"
+                                    CornerRadius="6"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    SnapsToDevicePixels="True"/>
+                            <Border x:Name="HoverBd" CornerRadius="6" Background="#18FFFFFF" Visibility="Collapsed" SnapsToDevicePixels="True"/>
+                            <Border x:Name="PressBd" CornerRadius="6" Background="#14000000" Visibility="Collapsed" SnapsToDevicePixels="True"/>
+                            <ContentPresenter x:Name="Cp"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              Margin="{TemplateBinding Padding}"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="HoverBd" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Cp" Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="HoverBd" Property="Visibility" Value="Collapsed"/>
+                                <Setter TargetName="PressBd" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
+
+        <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
+            <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+        <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
+            <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <!-- ===== Icon-only button for row actions ===== -->
+        <Style x:Key="IconButton" TargetType="Button">
+            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Border x:Name="Bd" CornerRadius="6" Background="Transparent" SnapsToDevicePixels="True"/>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#F1F3F6"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Opacity" Value="0.7"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="IconButtonDanger" TargetType="Button" BasedOn="{StaticResource IconButton}">
+            <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
+        </Style>
+
+        <!-- ===== Windows-11 style toggle switch ===== -->
+        <Style x:Key="SwitchToggle" TargetType="CheckBox">
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="22"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Grid Width="40" Height="22" Background="Transparent" VerticalAlignment="Center">
+                            <Border x:Name="Track"
+                                    Background="{StaticResource TrackBrush}"
+                                    CornerRadius="11"
+                                    SnapsToDevicePixels="True"/>
+                            <Ellipse x:Name="Thumb"
+                                     Width="16" Height="16"
+                                     Fill="White"
+                                     Margin="3"
+                                     HorizontalAlignment="Left">
+                                <Ellipse.Effect>
+                                    <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.25" Direction="270"/>
+                                </Ellipse.Effect>
+                            </Ellipse>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Track" Property="Background" Value="{StaticResource AccentBrush}"/>
+                                <Setter TargetName="Thumb" Property="HorizontalAlignment" Value="Right"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Track" Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ===== Text inputs ===== -->
+        <Style x:Key="InputTextBox" TargetType="TextBox">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="CaretBrush" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="SelectionBrush" Value="{StaticResource AccentTintBrush}"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="Bd"
+                                Background="{StaticResource SurfaceBrush}"
+                                BorderBrush="{StaticResource InputBorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="6"
+                                SnapsToDevicePixels="True">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="11,5"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                <Setter TargetName="Bd" Property="BorderThickness" Value="1.6"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Background" Value="#F4F5F7"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="GhostTextBox" TargetType="TextBox">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="CaretBrush" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" Background="Transparent"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ===== List rows ===== -->
+        <Style x:Key="ModernListBoxItem" TargetType="ListBoxItem">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="Bd"
+                                Background="Transparent"
+                                BorderBrush="{StaticResource RowHairlineBrush}"
+                                BorderThickness="0,0,0,1"
+                                CornerRadius="6"
+                                Padding="12,6"
+                                Margin="0,2"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource RowHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource AccentTintBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ===== Card surface ===== -->
+        <Style x:Key="CardBorder" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="10"/>
+        </Style>
+
     </Window.Resources>
 
-    <Grid Margin="12">
+    <Grid Margin="24,20,24,16" TextElement.Foreground="{StaticResource TextPrimaryBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -20,86 +254,272 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Header + toggles -->
-        <Grid Grid.Row="0" Margin="0,0,0,8">
+        <!-- ===== Header ===== -->
+        <Grid Grid.Row="0" Margin="0,0,0,18">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,16,0">
-                <TextBlock Text="TypeFlow" FontSize="20" FontWeight="Bold" Foreground="#0078D7"/>
-                <TextBlock Text="Text Expander" FontSize="13" Foreground="Gray" Margin="8,6,0,0"/>
+
+            <Border Grid.Column="0" Width="38" Height="38" CornerRadius="10"
+                    Background="{StaticResource AccentBrush}" Margin="0,0,12,0">
+                <TextBlock Text="T" FontSize="19" FontWeight="SemiBold"
+                           Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <TextBlock Text="TypeFlow" FontSize="19" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                <TextBlock Text="{DynamicResource ui.subtitle}" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,1,0,0"/>
             </StackPanel>
-            <StackPanel Grid.Column="2" Orientation="Horizontal">
-                <TextBlock Text="Active" Style="{StaticResource ToggleLabel}"/>
-                <CheckBox x:Name="ActiveToggle" VerticalAlignment="Center" Margin="0,0,20,0" Checked="Toggle_Changed" Unchecked="Toggle_Changed"/>
-                <TextBlock Text="Single-line inputs" Style="{StaticResource ToggleLabel}" ToolTip="Only expands in single-line edit fields (parity with the extension's INPUT toggle)"/>
-                <CheckBox x:Name="InputToggle" VerticalAlignment="Center" Checked="Toggle_Changed" Unchecked="Toggle_Changed"/>
+
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="{DynamicResource ui.language}" FontSize="12.5" Foreground="{StaticResource TextSecondaryBrush}"
+                           VerticalAlignment="Center" Margin="0,0,9,0"/>
+                <ComboBox x:Name="LanguageCombo" Width="118" Height="32"
+                          VerticalContentAlignment="Center" Padding="10,0"
+                          SelectionChanged="LanguageCombo_SelectionChanged" Margin="0,0,22,0">
+                    <ComboBoxItem Content="English"/>
+                    <ComboBoxItem Content="العربية"/>
+                </ComboBox>
+                <StackPanel Orientation="Horizontal" Margin="0,0,22,0">
+                    <TextBlock Text="{DynamicResource ui.active}" FontSize="12.5" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,9,0"/>
+                    <CheckBox x:Name="ActiveToggle" Style="{StaticResource SwitchToggle}"
+                              VerticalAlignment="Center"
+                              Checked="Toggle_Changed" Unchecked="Toggle_Changed"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{DynamicResource ui.singleline}" FontSize="12.5" Foreground="{StaticResource TextSecondaryBrush}"
+                               VerticalAlignment="Center" Margin="0,0,9,0"
+                               ToolTip="{DynamicResource ui.singlelineTip}"/>
+                    <CheckBox x:Name="InputToggle" Style="{StaticResource SwitchToggle}"
+                              VerticalAlignment="Center"
+                              Checked="Toggle_Changed" Unchecked="Toggle_Changed"/>
+                </StackPanel>
             </StackPanel>
         </Grid>
 
-        <!-- Add / edit form -->
-        <Border Grid.Row="1" BorderBrush="#DDDDDD" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,8" Background="#FAFAFA">
-            <StackPanel>
-                <TextBlock x:Name="FormTitle" Text="Add Shortcut" FontWeight="SemiBold" Width="704"/>
-                    <StackPanel Grid.Column="0" Margin="0,0,8,0">
-                        <TextBlock Text="Shortcut (e.g., brb)"/>
-                        <TextBox x:Name="ShortcutBox" Padding="3" MaxLength="50" Width="704"/>
-                        <TextBlock Text="Expansion Text (max 5000 chars)"/>
-                        <TextBox x:Name="ExpansionBox" Padding="3" MaxLength="5000" Height="106" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Width="710"/>
-                        <Button x:Name="CancelEditButton" Content="Cancel" Padding="12,4" MinWidth="110" Margin="0,4,0,0" Visibility="Collapsed" Click="CancelEditButton_Click"/>
-                        <Button x:Name="AddButton" Content="Add Shortcut" Padding="12,6" MinWidth="110" Click="AddButton_Click"/>
-                    </StackPanel>
-                <TextBlock x:Name="ValidationText" Foreground="#C00000" Margin="0,6,0,0" TextWrapping="Wrap"/>
-            </StackPanel>
-        </Border>
+        <!-- ===== Toolbar: search + actions ===== -->
+        <Grid Grid.Row="1" Margin="0,0,0,14">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-        <!-- Search + list -->
-        <Grid Grid.Row="3">
+            <Border Grid.Column="0" Width="300"
+                    CornerRadius="6"
+                    SnapsToDevicePixels="True">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+                        <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
+                        <Setter Property="BorderThickness" Value="1"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsKeyboardFocused, ElementName=SearchBox}" Value="True">
+                                <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                <Setter Property="BorderThickness" Value="1.6"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <Grid>
+                    <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                               Foreground="{StaticResource TextFaintBrush}" Margin="11,0,0,0"
+                               HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <TextBox x:Name="SearchBox" Style="{StaticResource GhostTextBox}" Padding="36,0,10,0"
+                             Height="34" VerticalContentAlignment="Center"
+                             ToolTip="{DynamicResource ui.searchTip}"/>
+                </Grid>
+            </Border>
+
+            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                <Button Style="{StaticResource SecondaryButton}" Click="ImportButton_Click">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="13" VerticalAlignment="Center" Margin="0,0,7,0"/>
+                            <TextBlock Text="{DynamicResource ui.import}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+                <Button Style="{StaticResource SecondaryButton}" Click="ExportButton_Click" Margin="8,0,0,0">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE898;" FontFamily="Segoe MDL2 Assets" FontSize="13" VerticalAlignment="Center" Margin="0,0,7,0"/>
+                            <TextBlock Text="{DynamicResource ui.export}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+                <Button Style="{StaticResource SecondaryButton}" Click="ResetButton_Click" Margin="8,0,0,0">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" FontSize="13" VerticalAlignment="Center" Margin="0,0,7,0"/>
+                            <TextBlock Text="{DynamicResource ui.reset}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <!-- ===== Add / edit section (collapsible) ===== -->
+        <Grid Grid.Row="2" Margin="0,0,0,14">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,6">
-                <TextBox x:Name="SearchBox" Width="280" Padding="3" ToolTip="Search shortcut or expansion"/>
-                <TextBlock x:Name="CountText" Margin="8,4,0,0" Foreground="Gray"/>
-            </StackPanel>
-            <Border Grid.Row="1" BorderBrush="#DDDDDD" BorderThickness="1" CornerRadius="4">
-                <ListBox x:Name="ShortcutList" BorderThickness="0"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled" Margin="0,62,0,0">
-                    <ListBox.ItemContainerStyle>
-                        <Style TargetType="ListBoxItem">
-                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                            <Setter Property="Padding" Value="0"/>
-                        </Style>
-                    </ListBox.ItemContainerStyle>
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Grid Margin="6,4">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="150"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="{Binding Shortcut}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip="{Binding Shortcut}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding Expansion}" TextTrimming="CharacterEllipsis" Foreground="#444444" ToolTip="{Binding Expansion}" Margin="0,1,0,0"/>
-                                <Button Grid.Column="2" Content="✎" Padding="6,1" Margin="0,0,4,0" ToolTip="Edit" Tag="{Binding}" Click="EditButton_Click"/>
-                                <Button Grid.Column="3" Content="✕" Padding="6,1" ToolTip="Delete" Tag="{Binding}" Click="DeleteButton_Click"/>
-                            </Grid>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+
+            <!-- Section toggle -->
+            <Button Grid.Row="0" Height="30" Cursor="Hand" HorizontalAlignment="Stretch" Focusable="False"
+                    Background="Transparent" Click="AddSectionToggle_Click">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="Transparent" CornerRadius="6" SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center" Margin="2,0"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#E9EBF0"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.7"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+                <StackPanel Orientation="Horizontal" Margin="4,0,0,0">
+                    <TextBlock x:Name="AddSectionChevron" Text="&#xE70E;" FontFamily="Segoe MDL2 Assets" FontSize="11"
+                               Foreground="{StaticResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,9,0"/>
+                    <TextBlock x:Name="FormTitle" Text="{DynamicResource ui.addShortcut}" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+
+            <Border Grid.Row="1" x:Name="AddFormCard" Style="{StaticResource CardBorder}" Padding="18,14" Margin="0,9,0,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Title row -->
+                <Grid Grid.Row="0" Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+            
+                    <TextBlock Text="{DynamicResource ui.formHint}" FontSize="11.5"
+                               Foreground="{StaticResource TextFaintBrush}" HorizontalAlignment="Right"/>
+                </Grid>
+
+                <!-- Fields -->
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="320"/>
+                        <ColumnDefinition Width="18"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="{DynamicResource ui.fieldShortcut}" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,5"/>
+                        <TextBox x:Name="ShortcutBox" Style="{StaticResource InputTextBox}" MaxLength="50" Height="34" VerticalContentAlignment="Center"
+                                 ToolTip="{DynamicResource ui.shortcutTip}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="{DynamicResource ui.fieldExpansion}" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,5"/>
+                        <TextBox x:Name="ExpansionBox" Style="{StaticResource InputTextBox}" MaxLength="5000" Height="92"
+                                 AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                                 ToolTip="{DynamicResource ui.expansionTip}"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Validation + actions -->
+                <Grid Grid.Row="2" Margin="0,12,0,0">
+                    <TextBlock x:Name="ValidationText" Foreground="{StaticResource DangerBrush}" FontWeight="Medium"
+                               TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,16,0"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button x:Name="CancelEditButton" Style="{StaticResource SecondaryButton}" Content="{DynamicResource ui.cancel}"
+                                MinWidth="110" Margin="0,0,8,0" Visibility="Collapsed" Click="CancelEditButton_Click"/>
+                        <Button x:Name="AddButton" Style="{StaticResource PrimaryButton}" Content="{DynamicResource ui.addShortcut}"
+                                MinWidth="140" Click="AddButton_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
             </Border>
         </Grid>
 
-        <!-- Import / export -->
-        <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,8,0,0">
-            <Button Content="Import .CSV…" Padding="12,5" Click="ImportButton_Click"/>
-            <Button Content="Export .CSV…" Padding="12,5" Margin="8,0,0,0" Click="ExportButton_Click"/>
-            <Button Content="Reset to Defaults" Padding="12,5" Margin="8,0,0,0" Click="ResetButton_Click"/>
-            <TextBlock x:Name="StatusText" VerticalAlignment="Center" Margin="12,0,0,0" Foreground="Gray"/>
-        </StackPanel>
+        <!-- ===== List card ===== -->
+        <Border Grid.Row="3" Style="{StaticResource CardBorder}" Padding="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" Margin="18,14,18,6">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{DynamicResource ui.shortcutsHeader}" FontSize="14.5" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="{DynamicResource ui.hoverHint}" FontSize="11.5" Foreground="{StaticResource TextFaintBrush}" Margin="0,0,12,0"/>
+                        <TextBlock x:Name="CountText" FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Grid.Row="1" Margin="8,0,8,8">
+                    <ListBox x:Name="ShortcutList" BorderThickness="0" Background="Transparent" Padding="2,0"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             ItemContainerStyle="{StaticResource ModernListBoxItem}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid MinHeight="38">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Background="{StaticResource ChipBrush}" CornerRadius="6"
+                                            Padding="10,3" VerticalAlignment="Center" Margin="0,0,12,0">
+                                        <TextBlock Text="{Binding Shortcut}" FontWeight="SemiBold" Foreground="{StaticResource ChipTextBrush}"
+                                                   TextTrimming="CharacterEllipsis" ToolTip="{Binding Shortcut}"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="1" Text="{Binding Expansion}" TextTrimming="CharacterEllipsis"
+                                               Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"
+                                               ToolTip="{Binding Expansion}" Margin="0,1,4,0"/>
+                                    <Button Grid.Column="2" Style="{StaticResource IconButton}" Margin="0,0,4,0"
+                                            ToolTip="{DynamicResource ui.editTip}" Tag="{Binding}" Click="EditButton_Click">
+                                        <TextBlock Text="&#xE70F;" FontFamily="Segoe MDL2 Assets" FontSize="13"/>
+                                    </Button>
+                                    <Button Grid.Column="3" Style="{StaticResource IconButtonDanger}"
+                                            ToolTip="{DynamicResource ui.deleteTip}" Tag="{Binding}" Click="DeleteButton_Click">
+                                        <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="13"/>
+                                    </Button>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <TextBlock x:Name="EmptyText" Text="{DynamicResource ui.empty}"
+                               Foreground="{StaticResource TextFaintBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Visibility="Collapsed"/>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- ===== Footer ===== -->
+        <Grid Grid.Row="4" Margin="0,12,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="StatusText" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"
+                       TextTrimming="CharacterEllipsis" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <TextBlock Grid.Column="1" Text="{DynamicResource ui.footerTip}"
+                       Foreground="{StaticResource TextFaintBrush}" FontSize="12" VerticalAlignment="Center"/>
+        </Grid>
     </Grid>
 </Window>
