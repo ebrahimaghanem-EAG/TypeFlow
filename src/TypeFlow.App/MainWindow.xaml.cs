@@ -317,7 +317,7 @@ public partial class MainWindow : Window
         var dlg = new SaveFileDialog
         {
             Filter = "CSV files (*.csv)|*.csv",
-            FileName = "typeflow_shortcuts.csv",
+            FileName = "english_autocorrect.csv",
             Title = L10n.T("dlg.exportTitle")
         };
         if (dlg.ShowDialog(this) != true) return;

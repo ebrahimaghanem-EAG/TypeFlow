@@ -306,78 +306,8 @@
             </StackPanel>
         </Grid>
 
-        <!-- ===== Toolbar: search + actions ===== -->
-        <Grid Grid.Row="1" Margin="0,0,0,14">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-
-            <Border Grid.Column="0" Width="300"
-                    CornerRadius="6"
-                    SnapsToDevicePixels="True">
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
-                        <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
-                        <Setter Property="BorderThickness" Value="1"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsKeyboardFocused, ElementName=SearchBox}" Value="True">
-                                <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
-                                <Setter Property="BorderThickness" Value="1.6"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
-                <Grid>
-                    <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="14"
-                               Foreground="{StaticResource TextFaintBrush}" Margin="11,0,0,0"
-                               HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                    <TextBox x:Name="SearchBox" Style="{StaticResource GhostTextBox}" Padding="36,0,10,0"
-                             Height="34" VerticalContentAlignment="Center"
-                             ToolTip="{DynamicResource ui.searchTip}"/>
-                </Grid>
-            </Border>
-
-            <StackPanel Grid.Column="2" Orientation="Horizontal">
-                <Button Style="{StaticResource SecondaryButton}" Click="ImportButton_Click">
-                    <Button.Content>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="13" VerticalAlignment="Center" Margin="0,0,7,0"/>
-                            <TextBlock Text="{DynamicResource ui.import}" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button.Content>
-                </Button>
-                <Button Style="{StaticResource SecondaryButton}" Click="ExportButton_Click" Margin="8,0,0,0">
-                    <Button.Content>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE898;" FontFamily="Segoe MDL2 Assets" FontSize="13" VerticalAlignment="Center" Margin="0,0,7,0"/>
-                            <TextBlock Text="{DynamicResource ui.export}" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button.Content>
-                </Button>
-                <Button Style="{StaticResource SecondaryButton}" Click="ResetButton_Click" Margin="8,0,0,0">
-                    <Button.Content>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" FontSize="13" VerticalAlignment="Center" Margin="0,0,7,0"/>
-                            <TextBlock Text="{DynamicResource ui.reset}" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button.Content>
-                </Button>
-                <Button Style="{StaticResource DangerButton}" Click="ClearAllButton_Click" Margin="8,0,0,0">
-                    <Button.Content>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="13" VerticalAlignment="Center" Margin="0,0,7,0"/>
-                            <TextBlock Text="{DynamicResource ui.clearAll}" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button.Content>
-                </Button>
-            </StackPanel>
-        </Grid>
-
         <!-- ===== Add / edit section (collapsible) ===== -->
-        <Grid Grid.Row="2" Margin="0,0,0,14">
+        <Grid Grid.Row="1" Margin="0,0,0,14">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -462,6 +392,76 @@
                 </Grid>
             </Grid>
             </Border>
+        </Grid>
+
+        <!-- ===== Toolbar: search + actions ===== -->
+        <Grid Grid.Row="2" Margin="0,0,0,14">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Width="300"
+                    CornerRadius="6"
+                    SnapsToDevicePixels="True">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+                        <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
+                        <Setter Property="BorderThickness" Value="1"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsKeyboardFocused, ElementName=SearchBox}" Value="True">
+                                <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                <Setter Property="BorderThickness" Value="1.6"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <Grid>
+                    <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                               Foreground="{StaticResource TextFaintBrush}" Margin="11,0,0,0"
+                               HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <TextBox x:Name="SearchBox" Style="{StaticResource GhostTextBox}" Padding="36,0,10,0"
+                             Height="34" VerticalContentAlignment="Center"
+                             ToolTip="{DynamicResource ui.searchTip}"/>
+                </Grid>
+            </Border>
+
+            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                <Button Style="{StaticResource SecondaryButton}" Click="ImportButton_Click">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="13" VerticalAlignment="Center" Margin="0,0,7,0"/>
+                            <TextBlock Text="{DynamicResource ui.import}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+                <Button Style="{StaticResource SecondaryButton}" Click="ExportButton_Click" Margin="8,0,0,0">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE898;" FontFamily="Segoe MDL2 Assets" FontSize="13" VerticalAlignment="Center" Margin="0,0,7,0"/>
+                            <TextBlock Text="{DynamicResource ui.export}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+                <Button Style="{StaticResource SecondaryButton}" Click="ResetButton_Click" Margin="8,0,0,0">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" FontSize="13" VerticalAlignment="Center" Margin="0,0,7,0"/>
+                            <TextBlock Text="{DynamicResource ui.reset}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+                <Button Style="{StaticResource DangerButton}" Click="ClearAllButton_Click" Margin="8,0,0,0">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="13" VerticalAlignment="Center" Margin="0,0,7,0"/>
+                            <TextBlock Text="{DynamicResource ui.clearAll}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+            </StackPanel>
         </Grid>
 
         <!-- ===== List card ===== -->
