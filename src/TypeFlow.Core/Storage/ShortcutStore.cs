@@ -20,14 +20,14 @@ public sealed class ShortcutStore
         _path = path;
     }
 
-    public static ShortcutStore Create(string path, string? defaultsCsv)
+    public static ShortcutStore Create(string path, string? defaultsCsv, string? arabicDefaultsCsv = null)
     {
         var store = new ShortcutStore(path);
-        store.Load(defaultsCsv);
+        store.Load(defaultsCsv, arabicDefaultsCsv);
         return store;
     }
 
-    public void Load(string? defaultsCsv)
+    public void Load(string? defaultsCsv, string? arabicDefaultsCsv = null)
     {
         if (File.Exists(_path))
         {
@@ -47,29 +47,32 @@ public sealed class ShortcutStore
             }
         }
 
-        if (!string.IsNullOrEmpty(defaultsCsv))
-        {
-            // The bundled defaults file carries the extension's export header
-            // ("Shortcut,Expansion"); the importer counts it as a row (parity with
-            // popup.js), so for *default* bootstrapping we strip it to avoid a bogus
-            // "shortcut" -> "Expansion" entry in the UI.
-            string csv = defaultsCsv.TrimStart('\uFEFF');
-            int nl = csv.IndexOf('\n');
-            if (nl >= 0)
-            {
-                string first = csv.Substring(0, nl).TrimEnd('\r');
-                if (string.Equals(first, "Shortcut,Expansion", StringComparison.OrdinalIgnoreCase))
-                {
-                    csv = csv.Substring(nl + 1);
-                }
-            }
+        // Load English defaults
+        LoadCsv(defaultsCsv);
+        // Load Arabic autocorrect (merges over English if there are overlaps)
+        LoadCsv(arabicDefaultsCsv);
+        try { Save(); } catch { }
+    }
 
-            var rows = CsvParser.Parse(csv);
-            foreach (var row in rows)
+    private void LoadCsv(string? csvText)
+    {
+        if (string.IsNullOrEmpty(csvText)) return;
+
+        string csv = csvText.TrimStart('\uFEFF');
+        int nl = csv.IndexOf('\n');
+        if (nl >= 0)
+        {
+            string first = csv.Substring(0, nl).TrimEnd('\r');
+            if (string.Equals(first, "Shortcut,Expansion", StringComparison.OrdinalIgnoreCase))
             {
-                Shortcuts[row.Shortcut] = row.Expansion;
+                csv = csv.Substring(nl + 1);
             }
-            try { Save(); } catch { }
+        }
+
+        var rows = CsvParser.Parse(csv);
+        foreach (var row in rows)
+        {
+            Shortcuts[row.Shortcut] = row.Expansion;
         }
     }
 

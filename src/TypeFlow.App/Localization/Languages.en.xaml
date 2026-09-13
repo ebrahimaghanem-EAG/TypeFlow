@@ -15,6 +15,7 @@
     <sys:String x:Key="ui.import">Import .CSV</sys:String>
     <sys:String x:Key="ui.export">Export .CSV</sys:String>
     <sys:String x:Key="ui.reset">Reset to defaults</sys:String>
+    <sys:String x:Key="ui.clearAll">Clear All</sys:String>
 
     <!-- Add / edit form -->
     <sys:String x:Key="ui.addShortcut">Add shortcut</sys:String>
@@ -57,6 +58,9 @@
     <sys:String x:Key="msg.confirmReset">Replace ALL shortcuts with the bundled default set? Your current shortcuts will be lost.</sys:String>
     <sys:String x:Key="msg.restored">Restored {0} default shortcuts.</sys:String>
     <sys:String x:Key="msg.resetFailed">Reset failed: {0}</sys:String>
+    <sys:String x:Key="msg.confirmClearAll">Delete ALL shortcuts? This cannot be undone. You can re-import defaults later.</sys:String>
+    <sys:String x:Key="msg.clearedAll">All shortcuts cleared.</sys:String>
+    <sys:String x:Key="msg.clearFailed">Clear failed: {0}</sys:String>
     <sys:String x:Key="dlg.importTitle">Import shortcuts CSV</sys:String>
     <sys:String x:Key="dlg.exportTitle">Export shortcuts CSV</sys:String>
 

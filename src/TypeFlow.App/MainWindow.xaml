@@ -86,6 +86,13 @@
             <Setter Property="BorderThickness" Value="1"/>
         </Style>
 
+        <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
+            <Setter Property="Background" Value="#FFF0F0"/>
+            <Setter Property="Foreground" Value="#C0392B"/>
+            <Setter Property="BorderBrush" Value="#E8D0D0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
         <!-- ===== Icon-only button for row actions ===== -->
         <Style x:Key="IconButton" TargetType="Button">
             <Setter Property="Width" Value="30"/>
@@ -355,6 +362,14 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" FontSize="13" VerticalAlignment="Center" Margin="0,0,7,0"/>
                             <TextBlock Text="{DynamicResource ui.reset}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+                <Button Style="{StaticResource DangerButton}" Click="ClearAllButton_Click" Margin="8,0,0,0">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="13" VerticalAlignment="Center" Margin="0,0,7,0"/>
+                            <TextBlock Text="{DynamicResource ui.clearAll}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button.Content>
                 </Button>

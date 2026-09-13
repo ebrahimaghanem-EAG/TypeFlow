@@ -333,6 +333,26 @@ public partial class MainWindow : Window
         }
     }
 
+    private void ClearAllButton_Click(object sender, RoutedEventArgs e)
+    {
+        var result = MessageBox.Show(
+            L10n.T("msg.confirmClearAll"),
+            "TypeFlow", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
+        if (result != MessageBoxResult.Yes) return;
+
+        try
+        {
+            _store.ClearAll();
+            _engine.ReplaceShortcuts(_store.Shortcuts);
+            Refresh();
+            StatusText.Text = L10n.T("msg.clearedAll");
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(L10n.Tf("msg.clearFailed", ex.Message), "TypeFlow", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
     private async void ResetButton_Click(object sender, RoutedEventArgs e)
     {
         var result = MessageBox.Show(

@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="assets\typeflow_shortcuts.csv" LogicalName="TypeFlow.defaults.csv" />
+    <EmbeddedResource Include="assets\arabic_autocorrect.csv" LogicalName="TypeFlow.arabic_autocorrect.csv" />
   </ItemGroup>
 
 </Project>

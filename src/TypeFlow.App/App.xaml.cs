@@ -100,7 +100,19 @@ public partial class App : System.Windows.Application
         }
         catch { }
 
-        _store = ShortcutStore.Create(StorePath, defaults);
+        string? arabicDefaults = null;
+        try
+        {
+            using var s = Assembly.GetExecutingAssembly().GetManifestResourceStream("TypeFlow.arabic_autocorrect.csv");
+            if (s != null)
+            using (var reader = new StreamReader(s))
+            {
+                arabicDefaults = reader.ReadToEnd();
+            }
+        }
+        catch { }
+
+        _store = ShortcutStore.Create(StorePath, defaults, arabicDefaults);
 
         _focusTracker = new FocusTracker();
         _engine = new ShortcutEngine(new PollingFocusProvider())

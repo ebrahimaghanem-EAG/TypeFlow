@@ -15,6 +15,7 @@
     <sys:String x:Key="ui.import">استيراد CSV</sys:String>
     <sys:String x:Key="ui.export">تصدير CSV</sys:String>
     <sys:String x:Key="ui.reset">إعادة التعيين الافتراضي</sys:String>
+    <sys:String x:Key="ui.clearAll">مسح الكل</sys:String>
 
     <!-- Add / edit form -->
     <sys:String x:Key="ui.addShortcut">إضافة اختصار</sys:String>
@@ -57,6 +58,9 @@
     <sys:String x:Key="msg.confirmReset">استبدال جميع الاختصارات بالمجموعة الافتراضية المضمّنة؟ ستُفقد اختصاراتك الحالية.</sys:String>
     <sys:String x:Key="msg.restored">تمت استعادة {0} اختصارًا افتراضيًا.</sys:String>
     <sys:String x:Key="msg.resetFailed">فشل إعادة التعيين: {0}</sys:String>
+    <sys:String x:Key="msg.confirmClearAll">حذف جميع الاختصارات؟ لا يمكن التراجع عن هذا الإجراء. يمكنك إعادة استيراد الاختصارات الافتراضية لاحقًا.</sys:String>
+    <sys:String x:Key="msg.clearedAll">تم مسح جميع الاختصارات.</sys:String>
+    <sys:String x:Key="msg.clearFailed">فشل المسح: {0}</sys:String>
     <sys:String x:Key="dlg.importTitle">استيراد اختصارات CSV</sys:String>
     <sys:String x:Key="dlg.exportTitle">تصدير اختصارات CSV</sys:String>
 
