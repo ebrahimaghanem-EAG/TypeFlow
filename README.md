@@ -6,7 +6,7 @@ A Windows text expander and autocorrect utility that works system-wide. TypeFlow
 
 - **System-wide text expansion** — works in any Windows application (Notepad, browsers, chat apps, etc.)
 - **Autocorrect** — built-in dictionary of common abbreviations and autocorrections
-- **Arabic autocorrect** — comprehensive Arabic spelling correction (127,000+ entries covering hamza, ض/ظ confusion, and common misspellings)
+- **Arabic autocorrect** — comprehensive Arabic spelling correction (hamza, ض/ظ confusion, and common misspellings)
 - **Custom shortcuts** — add, edit, and delete your own shortcut/expansion pairs
 - **CSV import/export** — bulk manage shortcuts via CSV files
 - **Case-insensitive matching** — `brb` matches `BRB`, `Brb`, etc.
@@ -66,8 +66,8 @@ dotnet run --project tests/TypeFlow.Tests/TypeFlow.Tests.csproj
 
 | Dictionary | Entries | Description |
 |------------|---------|-------------|
-| English shortcuts | 1,200+ | Common typos, abbreviations, grammar fixes, symbols |
-| Arabic autocorrect | 127,000+ | Comprehensive Arabic spelling corrections (hamza, ض/ظ, etc.) |
+| English autocorrect | 1,200+ | Common typos, abbreviations, grammar fixes, symbols |
+| Arabic autocorrect |  Arabic spelling typos, corrections (hamza, ض/ظ, etc.) |
 
 ## Project Structure
 
