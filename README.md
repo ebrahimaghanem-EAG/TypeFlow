@@ -67,7 +67,7 @@ dotnet run --project tests/TypeFlow.Tests/TypeFlow.Tests.csproj
 | Dictionary | Entries | Description |
 |------------|---------|-------------|
 | English autocorrect | 1,200+ | Common typos, abbreviations, grammar fixes, symbols |
-| Arabic autocorrect |  Arabic spelling typos, corrections (hamza, ض/ظ, etc.) |
+| Arabic autocorrect | 2000+  | Arabic spelling typos, corrections (hamza, ض/ظ, etc.) |
 
 ## Project Structure
 
